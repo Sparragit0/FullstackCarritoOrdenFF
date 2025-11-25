@@ -4,10 +4,12 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -30,6 +32,7 @@ public class Orden {
 
     private BigDecimal total;
 
+    @OneToMany(mappedBy = "orden", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrdenItem> items;
 
     @PrePersist

@@ -11,6 +11,7 @@ public interface OrdenRepository extends JpaRepository<Orden,Long>{
     // Obtener historial de un usuario
     List<Orden> findByUsuarioIdOrderByFechaCreacion(String usuarioId);
 
+    List<Orden> findByUsuarioId(String usuarioId);
     // Filtrar x estado
     List<Orden> findByEstado(EstadoOrden estado);
 }
