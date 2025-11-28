@@ -18,6 +18,7 @@ import jakarta.validation.Valid;
 
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -26,6 +27,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 @RestController
 @RequestMapping("/api/ordenes")
+@CrossOrigin(origins = "http://localhost:5173")
 public class OrdenController {
     private final OrdenService ordenService;
     private final JwtService jwtService;
@@ -86,6 +88,12 @@ public class OrdenController {
     public ResponseEntity<OrdenResponse> cancelarOrden(@PathVariable Long id) {
         OrdenResponse response = ordenService.cancelarOrden(id);
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping
+    public ResponseEntity<List<OrdenResponse>> listarTodas() {
+        List<OrdenResponse> ordenes = ordenService.obtenerTodas();
+        return ResponseEntity.ok(ordenes);
     }
 
 }

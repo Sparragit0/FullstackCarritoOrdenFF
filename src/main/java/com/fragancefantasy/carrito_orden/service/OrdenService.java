@@ -3,6 +3,7 @@ package com.fragancefantasy.carrito_orden.service;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
@@ -23,9 +24,11 @@ import jakarta.transaction.Transactional;
 
 @Service
 public class OrdenService {
+
     private final OrdenRepository ordenRepository;
     private final RestTemplate restTemplate;
 
+    // OJO: ajusta puertos/hosts si cambian en tus microservicios
     private static final String URL_INVENTARIO = "http://localhost:8081/api/inventario/ajustar-stock";
     private static final String URL_CATALOGO   = "http://localhost:8083/api/perfumes";
 
@@ -42,7 +45,6 @@ public class OrdenService {
         }
 
         Orden orden = new Orden();
-        // Por ahora tomamos usuarioId desde el request (a futuro puede salir del JWT)
         orden.setUsuarioId(usuarioId);
         orden.setEstado(EstadoOrden.CREADA);
 
@@ -66,12 +68,15 @@ public class OrdenService {
 
             if (perfume == null || perfume.getPrecio() == null) {
                 throw new IllegalArgumentException(
-                        "El producto " + itemReq.getProductoId() + " no existe en el catálogo o no tiene precio definido"
+                        "El producto " + itemReq.getProductoId()
+                        + " no existe en el catálogo o no tiene precio definido"
                 );
             }
 
             BigDecimal precioUnitario = perfume.getPrecio();
-            BigDecimal subtotal = precioUnitario.multiply(BigDecimal.valueOf(itemReq.getCantidad()));
+            BigDecimal subtotal = precioUnitario.multiply(
+                    BigDecimal.valueOf(itemReq.getCantidad())
+            );
 
             // 2) Ajustar stock en Inventario (salida = cantidad negativa)
             AjustarStockRequest ajustarStockRequest = new AjustarStockRequest();
@@ -111,16 +116,28 @@ public class OrdenService {
 
     @Transactional
     public OrdenResponse obtenerOrdenPorId(Long id) {
-        Orden orden = ordenRepository.findById(id).orElseThrow(() -> new RuntimeException("Orden no encontrada"));
-
+        Orden orden = ordenRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Orden no encontrada"));
         return convertirAOrdenResponse(orden);
     }
-    
+
+    /**
+     * Listar todas las órdenes (para AdminVentas).
+     */
+    public List<OrdenResponse> obtenerTodas() {
+        return ordenRepository.findAll()
+                .stream()
+                .map(this::convertirAOrdenResponse)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Mapeo entidad -> DTO de respuesta.
+     */
     private OrdenResponse convertirAOrdenResponse(Orden orden) {
-        // lista donde se guardan los items de respuesta
         List<OrdenItemResponse> itemsResponse = new ArrayList<>();
 
-        for (OrdenItem item: orden.getItems()){
+        for (OrdenItem item : orden.getItems()) {
             OrdenItemResponse itemResp = new OrdenItemResponse();
             itemResp.setProductoId(item.getProductoId());
             itemResp.setCantidad(item.getCantidad());
@@ -129,6 +146,7 @@ public class OrdenService {
 
             itemsResponse.add(itemResp);
         }
+
         OrdenResponse response = new OrdenResponse();
         response.setId(orden.getId());
         response.setUsuarioId(orden.getUsuarioId());
@@ -143,8 +161,8 @@ public class OrdenService {
     @Transactional
     public List<OrdenResponse> obtenerOrdenesPorUsuario(String usuarioId) {
         List<Orden> ordenes = ordenRepository.findByUsuarioId(usuarioId);
-
         List<OrdenResponse> respuesta = new ArrayList<>();
+
         for (Orden orden : ordenes) {
             respuesta.add(convertirAOrdenResponse(orden));
         }
@@ -168,7 +186,6 @@ public class OrdenService {
 
         return convertirAOrdenResponse(guardada);
     }
-    
 
     @Transactional
     public OrdenResponse cancelarOrden(Long id) {
