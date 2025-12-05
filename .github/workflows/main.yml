@@ -44,11 +44,11 @@ jobs:
           key: ${{ secrets.PRIVATE_KEY }}
           port: ${{ secrets.PORT }}
           script: |
-            cd /home/ubuntu/carpeta/CarritoOrdenFF/
+            cd /home/ubuntu/carpeta
             # Comando de depuración: Listar archivos para asegurar que docker-compose.yml está ahí
             echo "Archivos en la carpeta:"
             ls -la
 
             # Comandos de Docker
-            sudo docker compose down
+            sudo docker compose down || true
             sudo docker compose up -d --build
