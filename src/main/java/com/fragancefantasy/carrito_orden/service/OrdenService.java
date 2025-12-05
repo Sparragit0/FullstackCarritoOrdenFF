@@ -29,7 +29,7 @@ public class OrdenService {
     private final RestTemplate restTemplate;
 
     // OJO: ajusta puertos/hosts si cambian en tus microservicios
-    private static final String URL_INVENTARIO = "http://107.21.211.255:8081/api/inventario";
+    private static final String URL_INVENTARIO = "http://107.21.211.255:8081/api/inventario/ajustar-stock";
     private static final String URL_CATALOGO   = "http://98.90.161.146:8083/api/perfumes";
 
     public OrdenService(OrdenRepository ordenRepository, RestTemplate restTemplate) {
