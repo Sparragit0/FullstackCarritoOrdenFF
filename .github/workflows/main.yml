@@ -44,7 +44,7 @@ jobs:
           key: ${{ secrets.PRIVATE_KEY }}
           port: ${{ secrets.PORT }}
           script: |
-            cd /home/ubuntu/carpeta/micro-perfume-fullstack-main/perfume/
+            cd /home/ubuntu/carpeta/CarritoOrdenFF/
             # Comando de depuración: Listar archivos para asegurar que docker-compose.yml está ahí
             echo "Archivos en la carpeta:"
             ls -la
