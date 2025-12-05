@@ -27,7 +27,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 @RestController
 @RequestMapping("/api/ordenes")
-@CrossOrigin(origins = "http://localhost:5173")
+@CrossOrigin(origins = "http://localhost:5173",
+    "http://3.216.102.70")
 public class OrdenController {
     private final OrdenService ordenService;
     private final JwtService jwtService;
